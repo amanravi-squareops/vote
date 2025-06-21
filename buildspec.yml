@@ -25,7 +25,7 @@ phases:
       - echo "run pwd"
       - pwd
       - ls
-      - trivy config requirements.txt --severity HIGH,CRITICAL || true
+      - trivy fs . --scanners secret --exit-code 1
 
       - echo "Running SonarQube scan..."
       - |
