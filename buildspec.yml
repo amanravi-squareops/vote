@@ -3,20 +3,15 @@ version: 0.2
 phases:
   install:
     commands:
-      # Change directory to the project folder
+      # Install dependencies and security tools
       - cd vote
-      # Install Python dependencies
       - pip install -r requirements.txt
-      # Install Trivy for image scanning
       - curl -sSL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
-      # Install Bandit for static analysis
       - pip install bandit
-      # Download SonarQube Scanner with corrected URL
+      # Download and verify SonarQube Scanner with corrected URL
       - curl -sSL https://binaries.sonarsource.com/Commercial/sonar-scanner-cli/sonar-scanner-4.6.2.2472-linux.zip -o sonar-scanner.zip
-      # Check file type and ensure it's a ZIP
       - ls -lh sonar-scanner.zip  # Check if the file exists and its size
       - file sonar-scanner.zip     # Check the file type (should be ZIP)
-      # If file is a ZIP, unzip; otherwise, try another method
       - if [[ $(file sonar-scanner.zip) == *"Zip"* ]]; then unzip sonar-scanner.zip; else echo "Error: Invalid file format"; exit 1; fi
 
   pre_build:
@@ -34,7 +29,7 @@ phases:
   post_build:
     commands:
       # Run SonarQube scanner
-      - sonar-scanner -Dsonar.projectKey=my-python-app -Dsonar.host.url=http://http://3.92.68.102:9000/ -Dsonar.login=squ_01e57532fb456d834eb594cdc93209e0b1798ad1
+      - sonar-scanner -Dsonar.projectKey=my-python-app -Dsonar.host.url=http://3.92.68.102:9000/ -Dsonar.login=squ_01e57532fb456d834eb594cdc93209e0b1798ad1
 
 artifacts:
   files:
