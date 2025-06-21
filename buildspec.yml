@@ -3,6 +3,7 @@ phases:
   install:
     commands:
       # Install dependencies and security tools
+      - cd vote
       - pip install -r requirements.txt
       - curl -sSL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
       - pip install bandit
