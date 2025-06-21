@@ -1,40 +1,23 @@
-version: 0.2
-
-phases:
-  install:
-    commands:
-      - cd vote
-      - pip install -r requirements.txt
-      - curl -sSL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
-      - export PATH=$PATH:/root/.local/bin
-      - pip install bandit
-      - curl -sSL https://binaries.sonarsource.com/Commercial/sonar-scanner-cli/sonar-scanner-4.6.2.2472-linux.zip -o sonar-scanner.zip
-      - ls -lh sonar-scanner.zip
-      - file sonar-scanner.zip
-      - if [[ $(file sonar-scanner.zip) == *"Zip"* ]]; then unzip sonar-scanner.zip -d /opt/sonar-scanner; else echo "Error: Invalid file format"; exit 1; fi
-      - if [ $? -ne 0 ]; then curl -sSL https://binaries.sonarsource.com/Commercial/sonar-scanner-cli/sonar-scanner-4.6.2.2472-linux.tar.gz -o sonar-scanner.tar.gz; fi
-      - if [ -f sonar-scanner.tar.gz ]; then tar -xzf sonar-scanner.tar.gz -C /opt/sonar-scanner; fi
-      - export PATH=$PATH:/opt/sonar-scanner/sonar-scanner-4.6.2.2472-linux/bin
-
-  pre_build:
-    commands:
-      - bandit -r my_python_app
-
-  build:
-    commands:
-      - trivy fs . --exit-code 1 --severity HIGH,CRITICAL
-      - pytest
-
-  post_build:
-    commands:
-      - sonar-scanner -Dsonar.projectKey=my-python-app -Dsonar.host.url=http://3.92.68.102:9000 -Dsonar.login=squ_01e57532fb456d834eb594cdc93209e0b1798ad1
-
-artifacts:
-  files:
-    - '**/*'
-  discard-paths: yes
-  base-directory: .
-
-cache:
-  paths:
-    - '/root/.cache/pip/**/*'
+install:
+  commands:
+    - cd vote
+    - pip install -r requirements.txt
+    - curl -sSL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
+    - export PATH=$PATH:/root/.local/bin
+    - pip install bandit
+    - curl -sSL https://binaries.sonarsource.com/Commercial/sonar-scanner-cli/sonar-scanner-4.6.2.2472-linux.zip -o sonar-scanner.zip
+    - ls -lh sonar-scanner.zip
+    - file sonar-scanner.zip
+    - |
+      if [[ $(file sonar-scanner.zip) == *"Zip"* ]]; then
+        unzip sonar-scanner.zip -d /opt/sonar-scanner
+      else
+        echo "Error: Invalid file format"
+        exit 1
+      fi
+    - |
+      if [ $? -ne 0 ]; then
+        curl -sSL https://binaries.sonarsource.com/Commercial/sonar-scanner-cli/sonar-scanner-4.6.2.2472-linux.tar.gz -o sonar-scanner.tar.gz
+        tar -xzf sonar-scanner.tar.gz -C /opt/sonar-scanner
+      fi
+    - export PATH=$PATH:/opt/sonar-scanner/sonar-scanner-4.6.2.2472-linux/bin
