@@ -12,9 +12,15 @@ phases:
       - export PATH=$PATH:/root/.local/bin  # Add Trivy to the PATH
       # Install Bandit for static analysis
       - pip install bandit
-      # Download and unzip SonarQube Scanner with corrected URL
+      # Download SonarQube Scanner with corrected URL
       - curl -sSL https://binaries.sonarsource.com/Commercial/sonar-scanner-cli/sonar-scanner-4.6.2.2472-linux.zip -o sonar-scanner.zip
-      - unzip sonar-scanner.zip -d /opt/sonar-scanner  # Unzip to /opt
+      - ls -lh sonar-scanner.zip  # Check if the file exists and its size
+      - file sonar-scanner.zip     # Check the file type (should be ZIP)
+      # If the file is a ZIP, unzip; otherwise, try to use tar
+      - if [[ $(file sonar-scanner.zip) == *"Zip"* ]]; then unzip sonar-scanner.zip -d /opt/sonar-scanner; else echo "Error: Invalid file format"; exit 1; fi
+      # If unzip fails, try using tar as a fallback (in case it's a tar.gz file)
+      - if [ $? -ne 0 ]; then curl -sSL https://binaries.sonarsource.com/Commercial/sonar-scanner-cli/sonar-scanner-4.6.2.2472-linux.tar.gz -o sonar-scanner.tar.gz; fi
+      - if [ -f sonar-scanner.tar.gz ]; then tar -xzf sonar-scanner.tar.gz -C /opt/sonar-scanner; fi
       - export PATH=$PATH:/opt/sonar-scanner/sonar-scanner-4.6.2.2472-linux/bin  # Add sonar-scanner to the PATH
 
   pre_build:
