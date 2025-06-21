@@ -17,7 +17,7 @@ phases:
       - ls -lh sonar-scanner.zip  # Check if the file exists and its size
       - file sonar-scanner.zip     # Check the file type (should be ZIP)
       # If file is a ZIP, unzip; otherwise, try another method
-      - if [[ $(file sonar-scanner.zip) == *"Zip"* ]]; then unzip sonar-scanner.zip; else echo "Error: Invalid file format"; exit 1; fi
+      # - if [[ $(file sonar-scanner.zip) == *"Zip"* ]]; then unzip sonar-scanner.zip; else echo "Error: Invalid file format"; exit 1; fi
 
   pre_build:
     commands:
