@@ -1,23 +1,41 @@
-install:
-  commands:
-    - cd vote
-    - pip install -r requirements.txt
-    - curl -sSL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
-    - export PATH=$PATH:/root/.local/bin
-    - pip install bandit
-    - curl -sSL https://binaries.sonarsource.com/Commercial/sonar-scanner-cli/sonar-scanner-4.6.2.2472-linux.zip -o sonar-scanner.zip
-    - ls -lh sonar-scanner.zip
-    - file sonar-scanner.zip
-    - |
-      if [[ $(file sonar-scanner.zip) == *"Zip"* ]]; then
-        unzip sonar-scanner.zip -d /opt/sonar-scanner
-      else
-        echo "Error: Invalid file format"
-        exit 1
-      fi
-    - |
-      if [ $? -ne 0 ]; then
-        curl -sSL https://binaries.sonarsource.com/Commercial/sonar-scanner-cli/sonar-scanner-4.6.2.2472-linux.tar.gz -o sonar-scanner.tar.gz
-        tar -xzf sonar-scanner.tar.gz -C /opt/sonar-scanner
-      fi
-    - export PATH=$PATH:/opt/sonar-scanner/sonar-scanner-4.6.2.2472-linux/bin
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.11
+
+    commands:
+      - echo "Installing Python dependencies..."
+      - pip install -r requirements.txt
+
+      - echo "Installing Trivy..."
+      - curl -sSL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
+      - export PATH=$PATH:/root/.local/bin
+
+      - echo "Installing SonarQube Scanner..."
+      - curl -sSL https://binaries.sonarsource.com/Commercial/sonar-scanner-cli/sonar-scanner-4.6.2.2472-linux.zip -o sonar-scanner.zip
+      - unzip sonar-scanner.zip -d /opt/sonar-scanner
+      - export PATH=$PATH:/opt/sonar-scanner/sonar-scanner-4.6.2.2472-linux/bin
+
+  build:
+    commands:
+      - echo "Running Trivy scan..."
+      - trivy fs . --exit-code 0 --severity HIGH,CRITICAL || true
+
+      - echo "Running SonarQube scan..."
+      - sonar-scanner \
+          -Dsonar.projectKey=my-python-app \
+          -Dsonar.sources=. \
+          -Dsonar.host.url=http://http://3.92.68.102:9000/ \
+          -Dsonar.login=squ_01e57532fb456d834eb594cdc93209e0b1798ad1
+
+artifacts:
+  files:
+    - '**/*'
+  discard-paths: yes
+  base-directory: ./
+
+cache:
+  paths:
+    - '/root/.cache/pip/**/*'
