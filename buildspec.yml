@@ -1,31 +1,42 @@
 version: 0.2
+
 phases:
   install:
     commands:
       # Install dependencies and security tools
-      - cd vote
+      -  cd vote
       - pip install -r requirements.txt
       - curl -sSL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
       - pip install bandit
+      # Download and verify SonarQube Scanner
       - curl -sSL https://downloads.sonarsource.com/sonar-scanner-cli/sonar-scanner-4.6.2.2472-linux.zip -o sonar-scanner.zip
-      - unzip sonar-scanner.zip
-      - export PATH=$PWD/sonar-scanner-4.6.2.2472-linux/bin:$PATH
+      - ls -lh sonar-scanner.zip  # Check if the file exists and has a size
+      - file sonar-scanner.zip     # Check the file type
+      - unzip sonar-scanner.zip || { echo "Unzip failed. Trying tar..."; tar -xf sonar-scanner.zip; }
+
   pre_build:
     commands:
       # Run Bandit for Python code security checks
       - bandit -r my_python_app
+
   build:
     commands:
       # Run Trivy for container/image security scan
       - trivy fs . --exit-code 1 --severity HIGH,CRITICAL
       # Run tests (e.g., using pytest)
       - pytest
+
   post_build:
     commands:
       # Run SonarQube scanner
-      - sonar-scanner -Dsonar.projectKey=my-python-app -Dsonar.host.url=http://3.92.68.102:9000 -Dsonar.login=squ_01e57532fb456d834eb594cdc93209e0b1798ad1
+      - sonar-scanner -Dsonar.projectKey=my-python-app -Dsonar.host.url=http://<your-sonarqube-url> -Dsonar.login=<your-auth-token>
+
 artifacts:
   files:
     - '**/*'
   discard-paths: yes
   base-directory: dist
+
+cache:
+  paths:
+    - '/root/.cache/pip/**/*'
