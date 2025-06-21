@@ -11,7 +11,7 @@ phases:
       - curl -sSL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
       # Install Bandit for static analysis
       - pip install bandit
-      # Download SonarQube Scanner with corrected URL
+      # Download and verify SonarQube Scanner with corrected URL
       - curl -sSL https://binaries.sonarsource.com/Commercial/sonar-scanner-cli/sonar-scanner-4.6.2.2472-linux.zip -o sonar-scanner.zip
       # Check file type and ensure it's a ZIP
       - ls -lh sonar-scanner.zip  # Check if the file exists and its size
