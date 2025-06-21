@@ -12,7 +12,7 @@ phases:
 
       - echo "Installing Trivy..."
       - curl -sSL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
-      - export PATH=$PATH:/root/.local/bin
+      - export PATH=$PATH:$(pwd)/bin
 
       - echo "Installing SonarQube Scanner..."
       - curl -sSL https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip -o sonar-scanner.zip
@@ -25,7 +25,8 @@ phases:
       - trivy fs . --exit-code 0 --severity HIGH,CRITICAL || true
 
       - echo "Running SonarQube scan..."
-      - sonar-scanner \
+      - |
+        sonar-scanner \
           -Dsonar.projectKey=my-python-app \
           -Dsonar.sources=. \
           -Dsonar.host.url=http://3.92.68.102:9000 \
