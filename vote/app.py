@@ -9,7 +9,8 @@ from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
-
+USERNAME="aman"
+PASSWORD="Amanrajj@12"
 # Retrieve values from environment variables
 redis_host = os.getenv('REDIS_HOST', "redis")  # Updated Redis host
 redis_port = int(os.getenv('REDIS_PORT', 6379))
